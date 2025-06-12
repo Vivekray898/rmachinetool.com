@@ -6,8 +6,6 @@
     <title>Under Construction - Precision Machine Tools</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lottie Player CDN for animation -->
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script>
         // Tailwind CSS configuration for custom colors and animations.
         // In a real production environment, this would be externalized and processed via a build tool
@@ -27,6 +25,8 @@
                             orange: '#ea580c'
                         }
                     },
+                    // Keeping these animations in case they are used elsewhere or for future additions,
+                    // but they are not currently applied to the main construction scene elements.
                     animation: {
                         'spin-slow': 'spin 3s linear infinite',
                         'float': 'float 6s ease-in-out infinite',
@@ -49,33 +49,77 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc; /* Fallback background color */
+            overflow: hidden; /* Prevent scrollbars from animations */
         }
         
-        /* Keyframe animation for the crane arm subtle movement */
-        .crane-arm {
-            animation: craneMove 8s ease-in-out infinite alternate;
-            transform-origin: bottom left; /* Ensures rotation from the base */
+        /* Keyframe animation for subtle worker movement (idle bounce) */
+        @keyframes workerBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
         }
-        
-        @keyframes craneMove {
-            0% { transform: rotate(-5deg); }
-            100% { transform: rotate(5deg); }
+
+        /* Keyframe animation for the shovel digging motion */
+        @keyframes shovelDig {
+            0%, 100% {
+                transform: rotate(0deg) translateY(0);
+            }
+            25% {
+                transform: rotate(-30deg) translateY(10px); /* Shovel goes down for dig */
+            }
+            50% {
+                transform: rotate(10deg) translateY(-5px); /* Shovel lifts dirt */
+            }
+            75% {
+                transform: rotate(-15deg) translateY(5px); /* Shovel returns down */
+            }
         }
-        
-        /* Keyframe animation for the gears to spin */
-        .gear-spin {
-            animation: spin 6s linear infinite reverse; /* Spin in reverse direction */
+
+        /* Keyframe animation for dirt particles flying up */
+        @keyframes dirtParticleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-15px) scale(1.0);
+            }
+            60% {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5);
+            }
         }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+
+        .worker-animation-group {
+            animation: workerBounce 2s ease-in-out infinite;
         }
-        
-        /* Removed old worker/hammer/spark keyframes as Lottie handles the animation */
-        /* .worker-idle, .hammerSwing, .spark related CSS are no longer needed */
-        
-        /* Removed progress bar animation as it's now static at 65% for initial display */
+
+        .shovel-animation {
+            animation: shovelDig 1.5s ease-in-out infinite;
+            transform-origin: 50% 90%; /* Pivot point near the hand/ground */
+        }
+
+        .dirt-particle {
+            position: absolute;
+            background-color: #a0522d; /* Sienna/dirt color */
+            border-radius: 50%;
+            opacity: 0;
+            animation: dirtParticleFloat 1.5s ease-out infinite;
+            z-index: 10; /* Ensure particles are above other elements */
+        }
+        .dirt-particle:nth-child(1) { left: 45%; bottom: 10%; animation-delay: 0.1s; width: 4px; height: 4px; }
+        .dirt-particle:nth-child(2) { left: 52%; bottom: 12%; animation-delay: 0.3s; width: 3px; height: 3px; }
+        .dirt-particle:nth-child(3) { left: 58%; bottom: 8%; animation-delay: 0.5s; width: 5px; height: 5px; }
+        .dirt-particle:nth-child(4) { left: 48%; bottom: 15%; animation-delay: 0.7s; width: 3px; height: 3px; }
+
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-industrial-light to-gray-100">
@@ -117,35 +161,40 @@
                 We're upgrading our digital infrastructure to serve you better. Our team is working diligently to bring you an improved experience with enhanced features and resources for all your machine tool needs.
             </p>
             
-            <!-- Construction animation scene -->
+            <!-- Construction animation scene with custom SVG and CSS animation -->
             <div class="relative w-full h-48 mb-8 bg-gray-100 rounded-lg border border-gray-200 flex items-end justify-center overflow-hidden">
                 <!-- Mini construction site ground -->
-                <div class="absolute bottom-0 left-0 w-full h-8 bg-gray-400"></div>
+                <div class="absolute bottom-0 left-0 w-full h-8 bg-gray-400 z-0"></div>
                 
-                <!-- Crane (decorative SVG elements) -->
-                <div class="absolute left-1/4 bottom-8 w-2 h-24 bg-gray-700" aria-hidden="true" focusable="false"></div>
-                <div class="absolute left-1/4 bottom-32 w-16 h-2 bg-gray-700 crane-arm" aria-hidden="true" focusable="false"></div>
-                <div class="absolute left-1/4 bottom-32 -ml-2 w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center" aria-hidden="true" focusable="false">
-                    <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
-                </div>
-                <div class="absolute left-1/4 bottom-32 ml-14 w-4 h-12 bg-gray-800 rounded-b-lg" aria-hidden="true" focusable="false"></div>
-                
-                <!-- Gears (decorative SVG elements) -->
-                <div class="absolute right-1/4 bottom-12 w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center gear-spin" aria-hidden="true" focusable="false">
-                    <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-                        <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
-                    </div>
-                    <div class="absolute w-3 h-8 bg-gray-600 rounded-full"></div>
-                    <div class="absolute w-3 h-8 bg-gray-600 rounded-full transform rotate-45"></div>
-                    <div class="absolute w-3 h-8 bg-gray-600 rounded-full transform rotate-90"></div>
-                    <div class="absolute w-3 h-8 bg-gray-600 rounded-full transform rotate-[135deg]"></div>
-                </div>
-                
-                <!-- Lottie Player for Worker Animation -->
-                <!-- The Lottie animation is loaded from the provided URL, set to loop and autoplay -->
-                <lottie-player src="https://lottie.host/embed/01a97879-a275-4621-b2cd-86087954942e/ecKkQwOnon.lottie" background="transparent" speed="1" style="width: 150px; height: 150px; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);" loop autoplay></lottie-player>
+                <!-- Worker and Shovel SVG -->
+                <svg class="absolute bottom-6 left-1/2 -translate-x-1/2 w-40 h-40 worker-animation-group" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true" focusable="false">
+                    <!-- Worker Body -->
+                    <rect x="35" y="30" width="15" height="40" rx="5" ry="5" class="text-blue-800" />
+                    <!-- Worker Head -->
+                    <circle cx="42.5" cy="25" r="10" class="text-blue-700" />
+                    <!-- Worker Legs -->
+                    <rect x="37" y="70" width="6" height="30" rx="3" ry="3" class="text-blue-900" />
+                    <rect x="44" y="70" width="6" height="30" rx="3" ry="3" class="text-blue-900" />
+                    
+                    <!-- Shovel and Arm Group -->
+                    <g class="shovel-animation" transform="translate(10, -5)" transform-origin="50% 90%">
+                        <!-- Shovel Handle -->
+                        <rect x="55" y="35" width="5" height="40" rx="2" ry="2" class="text-gray-600" />
+                        <!-- Shovel Blade -->
+                        <path d="M50 75 L65 75 L60 85 L45 85 Z" class="text-gray-700" />
+                    </g>
+                </svg>
 
-                <!-- Removed old spark elements as Lottie animation has its own visual effects -->
+                <!-- Dirt Particles -->
+                <div class="dirt-particle"></div>
+                <div class="dirt-particle"></div>
+                <div class="dirt-particle"></div>
+                <div class="dirt-particle"></div>
+
+                <!-- "WORK IN PROGRESS!" Sign -->
+                <div class="absolute top-4 right-4 bg-yellow-400 text-yellow-900 text-sm md:text-base font-semibold px-4 py-2 rounded-full shadow-md transform rotate-3 z-20">
+                    WORK IN PROGRESS!
+                </div>
             </div>
             
             <!-- Progress indicator -->
